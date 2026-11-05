@@ -1,18 +1,30 @@
 import { useEffect } from 'react';
 import { useSimulationStore } from '../store/useSimulationStore';
-import { Network, Activity, ShieldAlert, Cpu, ArrowUpRight, CheckCircle2, Server, Globe } from 'lucide-react';
+import { Network, Activity, ShieldAlert, Cpu, ArrowUpRight, CheckCircle2, Server, Globe, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  const { stats, devices, natTable, fetchDevices, fetchNatTable, connectSocket } = useSimulationStore();
+  const { 
+    stats, 
+    devices, 
+    natTable, 
+    presets, 
+    currentPresetId, 
+    fetchDevices, 
+    fetchNatTable, 
+    fetchPresets, 
+    connectSocket 
+  } = useSimulationStore();
 
   useEffect(() => {
     connectSocket();
     fetchDevices();
     fetchNatTable();
-  }, [connectSocket, fetchDevices, fetchNatTable]);
+    fetchPresets();
+  }, [connectSocket, fetchDevices, fetchNatTable, fetchPresets]);
 
   const activeConnections = natTable.length;
+  const currentPreset = presets.find(p => p.id === currentPresetId);
 
   return (
     <div className="p-6 md:p-8 h-full overflow-y-auto space-y-8">
@@ -51,6 +63,33 @@ export default function Dashboard() {
         <div className="absolute -right-20 -top-20 w-72 h-72 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-72 h-72 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
       </div>
+
+      {/* Active Scenario Card */}
+      {currentPreset && (
+        <div className="glass-panel p-5 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-surfaceElevated/60 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-indigo-500/15 text-indigo-500 dark:text-indigo-400">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase font-bold text-textMuted tracking-wider">Active Scenario</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-500 dark:text-indigo-400">
+                  {currentPreset.natMode}
+                </span>
+              </div>
+              <h3 className="text-sm font-bold text-text">{currentPreset.name}</h3>
+              <p className="text-xs text-textMuted mt-0.5 max-w-xl">{currentPreset.educationalGoal}</p>
+            </div>
+          </div>
+          <Link
+            to="/simulator"
+            className="px-4 py-2 rounded-xl text-xs font-semibold bg-surface border border-border text-primary hover:bg-surfaceElevated transition-all shadow-sm shrink-0"
+          >
+            Switch Scenario in Simulator
+          </Link>
+        </div>
+      )}
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -110,6 +149,7 @@ export default function Dashboard() {
                   <th className="pb-3 px-2">Protocol</th>
                   <th className="pb-3 px-2">Inside Local</th>
                   <th className="pb-3 px-2">Inside Global</th>
+                  <th className="pb-3 px-2">TTL</th>
                   <th className="pb-3 px-2 text-right">State</th>
                 </tr>
               </thead>
@@ -122,10 +162,13 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="py-3 px-2 font-mono text-xs">
-                      {mapping.insideLocalIP}:{mapping.insideLocalPort}
+                      {mapping.insideLocalIP}:{mapping.insideLocalPort ?? '*'}
                     </td>
                     <td className="py-3 px-2 font-mono text-xs text-primary font-semibold">
-                      {mapping.insideGlobalIP}:{mapping.insideGlobalPort}
+                      {mapping.insideGlobalIP}:{mapping.insideGlobalPort ?? '*'}
+                    </td>
+                    <td className="py-3 px-2 font-mono text-xs text-textMuted">
+                      {mapping.remainingTtl ?? 60}s
                     </td>
                     <td className="py-3 px-2 text-right">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -137,7 +180,7 @@ export default function Dashboard() {
                 ))}
                 {natTable.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-textMuted">
+                    <td colSpan={5} className="py-8 text-center text-textMuted">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Network className="w-8 h-8 text-textMuted/40" />
                         <span className="text-sm">No active NAT mappings</span>
@@ -177,7 +220,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <div className="text-xs text-textMuted">NAT Mode</div>
-                  <div className="text-sm font-semibold text-text">PAT (Port Address Translation)</div>
+                  <div className="text-sm font-semibold text-text">
+                    {currentPreset ? currentPreset.natMode : 'PAT (Port Address Translation)'}
+                  </div>
                 </div>
               </div>
               <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
@@ -205,7 +250,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <div className="text-xs text-textMuted">Router WAN IP (Public)</div>
-                  <div className="text-sm font-mono font-semibold text-primary">203.0.113.5</div>
+                  <div className="text-sm font-mono font-semibold text-primary">
+                    {currentPreset ? currentPreset.routerWanIP : '203.0.113.5'}
+                  </div>
                 </div>
               </div>
               <span className="text-xs text-textMuted font-mono">Public Internet</span>

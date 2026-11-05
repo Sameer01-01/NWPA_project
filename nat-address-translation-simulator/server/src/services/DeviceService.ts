@@ -21,6 +21,12 @@ export class DeviceService {
     return this.devices.get(id);
   }
 
+  public getDeviceByIP(ip: string): Device | undefined {
+    return Array.from(this.devices.values()).find(
+      d => d.privateIP === ip || d.publicIP === ip
+    );
+  }
+
   public getAllDevices(): Device[] {
     return Array.from(this.devices.values());
   }
@@ -40,5 +46,10 @@ export class DeviceService {
 
   public clear(): void {
     this.devices.clear();
+  }
+
+  public setDevices(devices: Omit<Device, "id">[]): Device[] {
+    this.clear();
+    return devices.map(d => this.addDevice(d));
   }
 }
