@@ -12,6 +12,7 @@ import {
   type Edge
 } from '@xyflow/react';
 import { useSimulationStore } from '../store/useSimulationStore';
+import { useThemeStore } from '../store/useThemeStore';
 import { Monitor, Server, Router, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,9 +30,9 @@ const DeviceNode = ({ data }: NodeProps) => {
   const isHost = nodeData.type === 'HOST';
 
   return (
-    <div className={`px-4 py-2 shadow-xl rounded-xl border-2 flex items-center gap-3 bg-surface text-white
-      ${isRouter ? 'border-primary' : isInternet ? 'border-secondary' : 'border-white/20'}`}>
-      <div className={`p-2 rounded-lg ${isRouter ? 'bg-primary/20 text-primary' : isInternet ? 'bg-secondary/20 text-secondary' : 'bg-white/10'}`}>
+    <div className={`px-4 py-2 shadow-xl rounded-xl border-2 flex items-center gap-3 bg-surface text-text
+      ${isRouter ? 'border-primary shadow-glow-primary' : isInternet ? 'border-secondary shadow-glow-secondary' : 'border-border'}`}>
+      <div className={`p-2 rounded-lg ${isRouter ? 'bg-primary/20 text-primary' : isInternet ? 'bg-secondary/20 text-secondary' : 'bg-black/5 dark:bg-white/10 text-textMuted'}`}>
         {isRouter && <Router size={24} />}
         {isInternet && <Globe size={24} />}
         {isHost && <Monitor size={24} />}
@@ -61,6 +62,7 @@ const nodeTypes = {
 
 export function NetworkTopology() {
   const { devices, packets } = useSimulationStore();
+  const { theme } = useThemeStore();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -96,6 +98,7 @@ export function NetworkTopology() {
     setNodes(newNodes);
 
     // Generate edges connecting hosts to router, and router to internet
+    const strokeColor = theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
     const newEdges = [];
     const router = devices.find(d => d.type === 'NAT_ROUTER');
     const internet = devices.find(d => d.type === 'INTERNET');
@@ -108,7 +111,7 @@ export function NetworkTopology() {
           target: router.id,
           targetHandle: 'lan',
           animated: true,
-          style: { stroke: 'rgba(255,255,255,0.2)', strokeWidth: 2 }
+          style: { stroke: strokeColor, strokeWidth: 2 }
         });
       });
 
@@ -119,16 +122,16 @@ export function NetworkTopology() {
           sourceHandle: 'wan',
           target: internet.id,
           animated: true,
-          style: { stroke: 'rgba(255,255,255,0.2)', strokeWidth: 2 }
+          style: { stroke: strokeColor, strokeWidth: 2 }
         });
       }
     }
     
     setEdges(newEdges);
-  }, [devices]);
+  }, [devices, theme, setNodes, setEdges]);
 
   return (
-    <div className="w-full h-full bg-[#0b1120]">
+    <div className="w-full h-full bg-background transition-colors duration-200">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -139,8 +142,8 @@ export function NetworkTopology() {
         attributionPosition="bottom-right"
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#1e293b" gap={16} />
-        <Controls className="bg-surface border border-white/10 fill-white" />
+        <Background color={theme === 'dark' ? '#222222' : '#cbd5e1'} gap={16} />
+        <Controls className="bg-surface border border-border fill-current text-text" />
         
         {/* Packet Animations */}
         <AnimatePresence>

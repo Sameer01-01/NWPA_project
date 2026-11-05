@@ -1,29 +1,108 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: #0f172a;
-  --color-surface: #1e293b;
-  --color-primary: #3b82f6;
-  --color-secondary: #8b5cf6;
-  --color-success: #22c55e;
-  --color-error: #ef4444;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --app-bg: #f8f9fa;
+  --app-surface: #ffffff;
+  --app-surface-elevated: #f1f3f5;
+  --app-border: #e2e8f0;
+  --app-text: #111827;
+  --app-text-muted: #6b7280;
+
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f1f3f5;
+  --color-surfaceElevated: #f1f3f5;
+  --color-border: #e2e8f0;
+  --color-text: #111827;
+  --color-textMuted: #6b7280;
+  --color-primary: #6366f1;
+  --color-secondary: #06b6d4;
+  --color-success: #10b981;
+  --color-error: #f43f5e;
   --color-warning: #f59e0b;
-  --color-text: #f8fafc;
-  --color-textMuted: #94a3b8;
+}
+
+.dark {
+  --app-bg: #000000;
+  --app-surface: #111111;
+  --app-surface-elevated: #1a1a1a;
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-text: #ffffff;
+  --app-text-muted: #999999;
+
+  --color-background: #000000;
+  --color-surface: #111111;
+  --color-surface-elevated: #1a1a1a;
+  --color-surfaceElevated: #1a1a1a;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text: #ffffff;
+  --color-textMuted: #999999;
+  --color-primary: #6366f1;
+  --color-secondary: #06b6d4;
+  --color-success: #10b981;
+  --color-error: #f43f5e;
+  --color-warning: #f59e0b;
+}
+
+@theme {
+  --color-background: var(--app-bg);
+  --color-surface: var(--app-surface);
+  --color-surface-elevated: var(--app-surface-elevated);
+  --color-surfaceElevated: var(--app-surface-elevated);
+  --color-border: var(--app-border);
+  --color-text: var(--app-text);
+  --color-textMuted: var(--app-text-muted);
+  --color-primary: #6366f1;
+  --color-secondary: #06b6d4;
+  --color-success: #10b981;
+  --color-error: #f43f5e;
+  --color-warning: #f59e0b;
 }
 
 @layer base {
   body {
-    background-color: var(--color-background);
-    color: var(--color-text);
-    @apply font-sans antialiased;
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    @apply font-sans antialiased transition-colors duration-200;
   }
 }
 
 .glass-panel {
-  @apply bg-surface/80 backdrop-blur-md border border-white/10 shadow-xl rounded-xl;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease-in-out;
+}
+
+.dark .glass-panel {
+  background-color: rgba(17, 17, 17, 0.9);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--app-border);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--app-text-muted);
 }
 
 .xyflow__node {
-  border-radius: 8px;
+  border-radius: 12px;
 }

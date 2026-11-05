@@ -4,19 +4,28 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        background: "#0f172a", // slate-900
-        surface: "#1e293b", // slate-800
-        primary: "#3b82f6", // blue-500
-        secondary: "#8b5cf6", // violet-500
-        success: "#22c55e", // green-500
-        error: "#ef4444", // red-500
-        warning: "#f59e0b", // amber-500
-        text: "#f8fafc", // slate-50
-        textMuted: "#94a3b8", // slate-400
-      }
+        background: "var(--app-bg)",
+        surface: "var(--app-surface)",
+        surfaceElevated: "var(--app-surface-elevated)",
+        primary: "#6366f1",
+        secondary: "#06b6d4",
+        success: "#10b981",
+        error: "#f43f5e",
+        warning: "#f59e0b",
+        text: "var(--app-text)",
+        textMuted: "var(--app-text-muted)",
+        border: "var(--app-border)",
+      },
+      boxShadow: {
+        'glow-primary': '0 0 25px -3px rgba(99, 102, 241, 0.35)',
+        'glow-secondary': '0 0 25px -3px rgba(6, 182, 212, 0.35)',
+        'glow-success': '0 0 25px -3px rgba(16, 185, 129, 0.35)',
+        'glow-error': '0 0 25px -3px rgba(244, 63, 94, 0.35)',
+      },
     },
   },
   plugins: [],
